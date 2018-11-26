@@ -9,24 +9,28 @@ lazy val buildSettings = Seq(
   version := "0.1.7"
 )
 
+resolvers += "maven central" at "http://central.maven.org/maven2/"
+
 lazy val credentialSettings = Seq(
-  credentials ++= (for {
-    username <- Option(System.getenv().get("SONATYPE_USERNAME"))
-    password <- Option(System.getenv().get("SONATYPE_PASSWORD"))
-  } yield Credentials("Sonatype Nexus Repository Manager", "oss.sonatype.org", username, password)).toSeq
+  credentials += Credentials(Path.userHome / ".m2" / ".credentials")
+  //  credentials ++= (for {
+  //    username <- Option(System.getenv().get("SONATYPE_USERNAME"))
+  //    password <- Option(System.getenv().get("SONATYPE_PASSWORD"))
+  //  } yield Credentials("Sonatype Nexus Repository Manager", "oss.sonatype.org", username, password)).toSeq
 )
 
 lazy val publishSettings = Seq(
   publishMavenStyle := true,
   publishArtifact in Test := false,
   pomIncludeRepository := Function.const(false),
-  publishTo := {
-    val nexus = "https://oss.sonatype.org/"
-    if (isSnapshot.value)
-      Some("Snapshots" at nexus + "content/repositories/snapshots")
-    else
-      Some("Releases" at nexus + "service/local/staging/deploy/maven2")
-  },
+  publishTo := Some("Artifactory Realm" at "http://esi-components.esi-group.com/artifactory/local-maven-snapshot"),
+  //  publishTo := {
+  //    val nexus = "https://oss.sonatype.org/"
+  //    if (isSnapshot.value)
+  //      Some("Snapshots" at nexus + "content/repositories/snapshots")
+  //    else
+  //      Some("Releases" at nexus + "service/local/staging/deploy/maven2")
+  //  },
   homepage := Some(url("https://github.com/lewismj/kea")),
   licenses := Seq("BSD-style" -> url("http://www.opensource.org/licenses/bsd-license.php")),
   scmInfo := Some(ScmInfo(url("https://github.com/lewismj/kea"), "scm:git:git@github.com:lewismj/kea.git")),
@@ -41,10 +45,14 @@ lazy val publishSettings = Seq(
     )
 ) ++ credentialSettings
 
+
 lazy val commonSettings = Seq(
   scalacOptions += "-target:jvm-1.8",
+
+  //http://central.maven.org/maven2/
+
   libraryDependencies ++=  Seq (
-    "io.cucumber" % "cucumber-core" % "2.0.1",
+    "io.cucumber" %% "cucumber-core" % "2.0.1",
     "io.cucumber" %% "cucumber-scala" % "2.0.1",
     "io.cucumber" % "cucumber-jvm" % "2.0.1" artifacts Artifact("cucumber-jvm", `type`="pom", extension="pom"),
     "io.cucumber" % "cucumber-junit" % "2.0.1",
